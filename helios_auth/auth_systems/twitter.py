@@ -4,8 +4,7 @@ Twitter Authentication
 
 from .oauthclient import client
 
-from django.conf.urls import url
-from django.urls import reverse
+from django.urls import path, reverse
 from django.http import HttpResponseRedirect
 
 from helios_auth import utils
@@ -129,4 +128,4 @@ def can_create_election(user_id, user_info):
   return True
 
 
-urlpatterns = [url(r'^twitter/follow', follow_view, name=FOLLOW_VIEW_URL_NAME)]
+urlpatterns = [path('twitter/follow', follow_view, name=FOLLOW_VIEW_URL_NAME)]
