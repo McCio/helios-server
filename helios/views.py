@@ -88,9 +88,6 @@ def admin_autologin(request):
   if len(users) == 0:
     return HttpResponse("no admin users!")
 
-  if len(users) == 0:
-    return HttpResponse("no users!")
-
   user = users[0]
   request.session['user'] = {'type' : user.user_type, 'user_id' : user.user_id}
   return HttpResponseRedirect("/")

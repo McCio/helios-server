@@ -530,7 +530,7 @@ class ElectionBlackboxTests(WebTest):
         self.clear_login()
 
     def _setup_complete_election(self, election_params=None):
-        "do the setup part of a whole election"
+        """do the setup part of a whole election"""
 
         # REPLACE with params?
         self.setup_login(from_scratch=True)
@@ -588,7 +588,7 @@ class ElectionBlackboxTests(WebTest):
         # and we want to check that there are now voters
         response = self.client.get("/helios/elections/%s/voters/" % election_id)
         NUM_VOTERS = 4
-        self.assertEqual(len(response.json()), NUM_VOTERS)
+        self.assertEqual(len(response.json()), NUM_VOTERS, response.content)
 
         # let's get a single voter
         single_voter = models.Election.objects.get(uuid = election_id).voter_set.all()[0]
