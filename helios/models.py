@@ -9,13 +9,12 @@ Ben Adida
 import copy
 import csv
 import datetime
-import io
 import uuid
 
 import bleach
-import unicodecsv
 from django.conf import settings
 from django.db import models, transaction
+from django.db.models.fields.files import FieldFile
 
 from helios import datatypes
 from helios import utils
@@ -272,11 +271,10 @@ class Election(HeliosModel):
     """
     expects a django uploaded_file data structure, which has filename, content, size...
     """
-    # now we're just storing the content
-    # random_filename = str(uuid.uuid4())
-    # new_voter_file.voter_file.save(random_filename, uploaded_file)
-
-    new_voter_file = VoterFile(election = self, voter_file_content = uploaded_file.read())
+    new_voter_content = uploaded_file.read()
+    if isinstance(new_voter_content, bytes):
+      new_voter_content = new_voter_content.decode(encoding='utf-8')
+    new_voter_file = VoterFile(election=self, voter_file_content=new_voter_content)
     new_voter_file.save()
     
     self.append_log(ElectionLog.VOTER_FILE_ADDED)
@@ -677,26 +675,40 @@ class ElectionLog(models.Model):
     app_label = 'helios'
 
 ##
-## UTF8 craziness for CSV
+## UTF8/str/bytes craziness for CSV
 ##
 
-def unicode_csv_reader(unicode_csv_data, dialect=csv.excel, **kwargs):
-    # csv.py doesn't do Unicode; encode temporarily as UTF-8:
-    csv_reader = csv.reader(utf_8_encoder(unicode_csv_data),
-                            dialect=dialect, **kwargs)
-    for row in csv_reader:
-      # decode UTF-8 back to Unicode, cell by cell:
-      try:
-        yield [str(cell, 'utf-8') for cell in row]
-      except:
-        yield [str(cell, 'latin-1') for cell in row]        
 
-def utf_8_encoder(unicode_csv_data):
-    for line in unicode_csv_data:
-      # FIXME: this used to be line.encode('utf-8'),
-      # need to figure out why this isn't consistent
-      yield line
-  
+def read_voterfile(file_content, django_file: FieldFile):
+  if django_file:
+    with open(django_file.path, 'rt', encoding='utf-8', newline=None) as voter_stream:
+      for line in voter_stream:
+        yield line.strip()
+  elif file_content:
+    if isinstance(file_content, str):
+      pass
+    elif isinstance(file_content, bytes):
+      file_content = file_content.decode(encoding='utf-8')
+    else:
+      raise TypeError("voter_file_content is of type {0} instead of str or bytes"
+                      .format(str(type(file_content))))
+    for line in file_content.split('\n'):
+      yield line.strip()
+  else:
+    raise ValueError("No file nor file content provided")
+
+
+class VoterFileReader(csv.DictReader):
+  fieldnames = ('voter_id', 'email', 'name')
+
+  def __init__(self, file_content, django_file, dialect='unix', *args, **kwds):
+    super().__init__(read_voterfile(file_content, django_file),
+                     dialect=dialect,
+                     fieldnames=VoterFileReader.fieldnames,
+                     restkey='extra', restval=None,
+                     *args, **kwds)
+
+
 class VoterFile(models.Model):
   """
   A model to store files that are lists of voters to be processed
@@ -719,81 +731,58 @@ class VoterFile(models.Model):
     app_label = 'helios'
 
   def itervoters(self):
-    if self.voter_file_content:
-      if isinstance(self.voter_file_content, str):
-        content = self.voter_file_content.encode(encoding='utf-8')
-      elif isinstance(self.voter_file_content, bytes):
-        content = self.voter_file_content
-      else:
-        raise TypeError("voter_file_content is of type {0} instead of str or bytes"
-                        .format(str(type(self.voter_file_content))))
-
-      # now we have to handle non-universal-newline stuff
-      # we do this in a simple way: replace all \r with \n
-      # then, replace all double \n with single \n
-      # this should leave us with only \n
-      content = content.replace(b'\r',b'\n').replace(b'\n\n',b'\n')
-
-      close = False
-      voter_stream = io.BytesIO(content)
-    else:
-      close = True
-      voter_stream = open(self.voter_file.path, "rb")
-
-    #reader = unicode_csv_reader(voter_stream)
-    reader = unicodecsv.reader(voter_stream, encoding='utf-8')
-
+    reader = VoterFileReader(self.voter_file_content, self.voter_file)
     for voter_fields in reader:
       # bad line
-      if len(voter_fields) < 1:
+      if voter_fields['voter_id'] is None:
         continue
-    
-      return_dict = {'voter_id': voter_fields[0].strip()}
+      voter_fields['voter_id'] = voter_fields['voter_id'].strip()
 
-      if len(voter_fields) > 1:
-        return_dict['email'] = voter_fields[1].strip()
+      if voter_fields['email'] is None:
+        voter_fields['email'] = voter_fields['voter_id']
       else:
-        # assume single field means the email is the same field
-        return_dict['email'] = voter_fields[0].strip()
+        voter_fields['email'] = voter_fields['email'].strip()
 
-      if len(voter_fields) > 2:
-        return_dict['name'] = voter_fields[2].strip()
+      if voter_fields['name'] is None:
+        voter_fields['name'] = voter_fields['email']
       else:
-        return_dict['name'] = return_dict['email']
+        voter_fields['name'] = voter_fields['name'].strip()
 
-      yield return_dict
-    if close:
-      voter_stream.close()
-    
+      # if 'extra' in voter_fields:
+      #   logging.warning(voter_fields['extra'])
+
+      yield voter_fields
+
   def process(self):
     self.processing_started_at = datetime.datetime.utcnow()
     self.save()
 
-    election = self.election    
+    election = self.election
     last_alias_num = election.last_alias_num
 
     num_voters = 0
     new_voters = []
     for voter in self.itervoters():
       num_voters += 1
-    
+
       # does voter for this user already exist
       existing_voter = Voter.get_by_election_and_voter_id(election, voter['voter_id'])
-    
+
       # create the voter
       if not existing_voter:
         voter_uuid = str(uuid.uuid4())
-        existing_voter = Voter(uuid= voter_uuid, user = None, voter_login_id = voter['voter_id'],
+        new_voter = Voter(uuid= voter_uuid, user = None, voter_login_id = voter['voter_id'],
                       voter_name = voter['name'], voter_email = voter['email'], election = election)
-        existing_voter.generate_password()
-        new_voters.append(existing_voter)
-        existing_voter.save()
+        new_voter.generate_password()
+        new_voters.append(new_voter)
+        new_voter.save()
+        # logging.info(f"Added voter {new_voter}")
 
     if election.use_voter_aliases:
       voter_alias_integers = list(range(last_alias_num+1, last_alias_num+1+num_voters))
       random.shuffle(voter_alias_integers)
-      for i, voter in enumerate(new_voters):
-        voter.alias = 'V%s' % voter_alias_integers[i]
+      for i, voter in zip(voter_alias_integers, new_voters):
+        voter.alias = f'V{i:d}'
         voter.save()
 
     self.num_voters = num_voters

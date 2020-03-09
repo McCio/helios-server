@@ -76,8 +76,8 @@ class ElectionModelTests(TestCase):
 
         FILE = "helios/fixtures/voter-file.csv"
         with open(FILE, 'r', encoding='utf-8') as f:
-            vf = models.VoterFile.objects.create(election = election, voter_file = File(f, "voter_file.css"))
-            vf.process()
+            vf = models.VoterFile.objects.create(election = election, voter_file = File(f, "voter_file.csv"))
+            self.assertEqual(4, vf.process(), "Imported incorrect number of voters.")
 
         # make sure that we stripped things correctly
         voter = election.voter_set.get(voter_login_id = 'benadida5')
@@ -555,20 +555,19 @@ class ElectionBlackboxTests(WebTest):
 
         # we are redirected to the election, let's extract the ID out of the URL
         election_id = re.search('/elections/([^/]+)/', str(response['location']))
-        self.assertIsNotNone(election_id, "Election id not found in redirect: %s" % str(response['location']))
+        self.assertIsNotNone(election_id, f"Election id not found in redirect: {str(response['location'])}")
         election_id = election_id.group(1)
 
         # helios is automatically added as a trustee
 
         # check that helios is indeed a trustee
-        response = self.client.get("/helios/elections/%s/trustees/view" % election_id)
+        response = self.client.get(f"/helios/elections/{election_id}/trustees/view")
         self.assertContains(response, "Trustee #1")
 
         # add a few voters with an improperly placed email address
         FILE = "helios/fixtures/voter-badfile.csv"
-        voters_file = open(FILE)
-        response = self.client.post("/helios/elections/%s/voters/upload" % election_id, {'voters_file': voters_file})
-        voters_file.close()
+        with open(FILE, 'r', encoding='utf-8') as voters_file:
+            response = self.client.post(f"/helios/elections/{election_id}/voters/upload", {'voters_file': voters_file})
         self.assertContains(response, "HOLD ON")
 
         # add a few voters, via file upload
@@ -576,9 +575,8 @@ class ElectionBlackboxTests(WebTest):
         # yes I know that's not how you spell Ernesto.
         # I just needed some unicode quickly.
         FILE = "helios/fixtures/voter-file.csv"
-        voters_file = open(FILE)
-        response = self.client.post("/helios/elections/%s/voters/upload" % election_id, {'voters_file': voters_file})
-        voters_file.close()
+        with open(FILE, 'r', encoding='utf-8') as voters_file:
+            response = self.client.post(f"/helios/elections/{election_id}/voters/upload", {'voters_file': voters_file})
         self.assertContains(response, "first few rows of this file")
 
         # now we confirm the upload
