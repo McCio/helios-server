@@ -167,6 +167,7 @@ TEMPLATES = [
             'debug': DEBUG,
             'context_processors': [
                 'helios.context_processors.settings',
+                'helios.context_processors.current_url',
                 'django.template.context_processors.i18n',
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',

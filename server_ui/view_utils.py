@@ -16,8 +16,7 @@ from helios_auth.security import get_user
 def render_template(request, template_name, values = None):
   vars_with_user = values.copy() if values is not None else {}
   vars_with_user['user'] = get_user(request)
-  vars_with_user['CURRENT_URL'] = request.path
-  
+
   # csrf protection
   if 'csrf_token' in request.session:
     vars_with_user['csrf_token'] = request.session['csrf_token']
