@@ -8,7 +8,6 @@ import urllib.parse
 # nicely update the wrapper function
 from functools import update_wrapper
 
-from django.conf import settings
 from django.core.exceptions import PermissionDenied
 from django.http import Http404
 from django.http import HttpResponseRedirect
@@ -33,7 +32,7 @@ class HSTSMiddleware:
         # Code to be executed for each request/response after
         # the view is called.
 
-        if settings.STS:
+        if helios.STS:
           response['Strict-Transport-Security'] = "max-age=31536000; includeSubDomains; preload"
         return response
 

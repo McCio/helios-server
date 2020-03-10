@@ -588,8 +588,9 @@ class ElectionBlackboxTests(WebTest):
 
         # and we want to check that there are now voters
         response = self.client.get("/helios/elections/%s/voters/" % election_id)
+        voters_list = response.json()
         NUM_VOTERS = 4
-        self.assertEqual(len(response.json()), NUM_VOTERS, response.content)
+        self.assertEqual(len(voters_list), NUM_VOTERS, response.content)
 
         # let's get a single voter
         single_voter = models.Election.objects.get(uuid = election_id).voter_set.all()[0]

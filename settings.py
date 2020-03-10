@@ -112,7 +112,10 @@ if get_from_env('HSTS', '0') == '1':
 SECURE_BROWSER_XSS_FILTER = True
 SECURE_CONTENT_TYPE_NOSNIFF = True
 
-SILENCED_SYSTEM_CHECKS = ['urls.W002']
+SILENCED_SYSTEM_CHECKS = [
+    'urls.W002',
+    'security.W019',  # X_FRAME_OPTIONS is not set to DENY since some logout options use SAMEORIGIN iframe
+]
 
 MIDDLEWARE = [
     # secure a bunch of things
@@ -201,8 +204,11 @@ HELP_EMAIL_ADDRESS = get_from_env('HELP_EMAIL_ADDRESS', 'help@heliosvoting.org')
 
 AUTH_TEMPLATE_BASE = "server_ui/templates/base.html"
 HELIOS_TEMPLATE_BASE = "server_ui/templates/base.html"
+# a setting to ensure that only admins can create an election
 HELIOS_ADMIN_ONLY = False
+# allow upload of voters via CSV?
 HELIOS_VOTERS_UPLOAD = True
+# allow emailing of voters?
 HELIOS_VOTERS_EMAIL = True
 
 # are elections private by default?
@@ -264,7 +270,7 @@ if get_from_env('EMAIL_USE_AWS', '0') == '1':
 import logging
 
 logging.basicConfig(
-    level=logging.DEBUG if TESTING else logging.INFO,
+    level=logging.DEBUG if TESTING or DEBUG else logging.INFO,
     format='%(asctime)s %(levelname)s %(message)s'
 )
 

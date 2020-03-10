@@ -12,6 +12,7 @@ import os
 import uuid
 from urllib.parse import urlencode
 
+from django.conf import settings
 from django.core.exceptions import PermissionDenied
 from django.core.paginator import Paginator
 from django.db import transaction, IntegrityError
@@ -50,7 +51,6 @@ ELGAMAL_PARAMS.g = 1488749222496318763428242153718604080130400801774349230448173
 ELGAMAL_PARAMS_LD_OBJECT = datatypes.LDObject.instantiate(ELGAMAL_PARAMS, datatype='legacy/EGParams')
 
 # single election server? Load the single electionfrom models import Election
-from django.conf import settings
 
 def get_election_url(election):
   return settings.URL_HOST + reverse(url_names.ELECTION_SHORTCUT, args=[election.short_name])
@@ -1301,7 +1301,7 @@ def voters_upload(request, election):
           problems.append("your CSV file could not be processed. Please check that it is a proper CSV file.")
 
         # check if voter emails look like emails
-        if False in [validate_email(v['email']) for v in voters]:
+        if not all(validate_email(v['email']) for v in voters):
           problems.append("those don't look like correct email addresses. Are you sure you uploaded a file with email address as second field?")
 
         return render_template(request, 'voters_upload_confirm', {'election': election, 'voters': voters, 'problems': problems})
@@ -1347,21 +1347,21 @@ def voters_email(request, election):
   election_vote_url = get_election_govote_url(election)
 
   default_subject = render_template_raw(None, 'email/%s_subject.txt' % template, {
-      'custom_subject': "&lt;SUBJECT&gt;"
-})
+    'custom_subject': "&lt;SUBJECT&gt;"
+  })
   default_body = render_template_raw(None, 'email/%s_body.txt' % template, {
-      'election' : election,
-      'election_url' : election_url,
-      'election_vote_url' : election_vote_url,
-      'custom_subject' : default_subject,
-      'custom_message': '&lt;BODY&gt;',
-      'voter': {'vote_hash' : '<SMART_TRACKER>',
-                'name': '<VOTER_NAME>',
-                'voter_login_id': '<VOTER_LOGIN_ID>',
-                'voter_password': '<VOTER_PASSWORD>',
-                'voter_type' : election.voter_set.all()[0].voter_type,
-                'election' : election}
-      })
+    'election': election,
+    'election_url': election_url,
+    'election_vote_url': election_vote_url,
+    'custom_subject': default_subject,
+    'custom_message': '&lt;BODY&gt;',
+    'voter': {'vote_hash': '<SMART_TRACKER>',
+              'name': '<VOTER_NAME>',
+              'voter_login_id': '<VOTER_LOGIN_ID>',
+              'voter_password': '<VOTER_PASSWORD>',
+              'voter_type': election.voter_set.all()[0].voter_type,
+              'election': election}
+  })
 
   if request.method == "GET":
     email_form = forms.EmailVotersForm(initial={'subject': election.name, 'body': ' '})
