@@ -271,6 +271,9 @@ logging.basicConfig(
 # set up celery
 CELERY_BROKER_URL = 'amqp://localhost'
 CELERY_TASK_ALWAYS_EAGER = True
+CELERY_TASK_SERIALIZER = 'pickle'
+CELERY_EVENT_SERIALIZER = 'pickle'
+CELERY_RESULT_SERIALIZER = 'pickle'
 #database_url = DATABASES['default']
 
 # Rollbar Error Logging
