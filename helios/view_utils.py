@@ -36,7 +36,6 @@ def prepare_vars(request, values):
     vars_with_user['csrf_token'] = request.session['csrf_token']
 
   vars_with_user['utils'] = utils
-  vars_with_user['settings'] = settings
   vars_with_user['TEMPLATE_BASE'] = helios.TEMPLATE_BASE
   vars_with_user['CURRENT_URL'] = request.path
   if 'voter' not in vars_with_user:

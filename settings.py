@@ -164,7 +164,15 @@ TEMPLATES = [
             # os.path.join(ROOT_PATH, 'server_ui/templates'),  # covered by APP_DIRS:True
         ],
         'OPTIONS': {
-            'debug': DEBUG
+            'debug': DEBUG,
+            'context_processors': [
+                'helios.context_processors.settings',
+                'django.template.context_processors.i18n',
+                'django.template.context_processors.debug',
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
+            ],
         }
     },
 ]
