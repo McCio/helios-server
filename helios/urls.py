@@ -35,7 +35,7 @@ urlpatterns = [
 if "localhost" in settings.URL_HOST or "127.0.0.1" in settings.URL_HOST:
   urlpatterns.append(path('autologin', views.admin_autologin))
   import logging
-  if not settings.DEBUG and not settings.TESTING:
-    logging.error("Autologin path for admin is enabled, even if not a DEBUG or TESTING environment.")
+  if not settings.TESTING:
+    logging.error("Autologin path for admin is enabled, even if not a TESTING environment.")
   else:
     logging.warning("Autologin path for admin is enabled.")

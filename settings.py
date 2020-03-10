@@ -5,7 +5,7 @@ import sys
 import json
 import os
 
-TESTING = 'test' in sys.argv
+TESTING = 'test' in sys.argv or 'check' in sys.argv
 
 # go through environment variables and override them
 def get_from_env(var, default):
