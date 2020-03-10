@@ -51,18 +51,18 @@
       </ul>
       
       <ul>
-        <li><a href="/">{{settings.SITE_TITLE}}</a></li>
+        <li><a href="{% url "home" %}">{{settings.SITE_TITLE}}</a></li>
 	{% if settings.MASTER_HELIOS %}
         <li class="divider"></li>
-        <li><a href="/about">About</a></li>
+        <li><a href="{% url "about" %}">About</a></li>
         <li class="divider"></li>
         <li><a target="_new" href="https://github.com/benadida/helios-server">Code</a></li>
         <li class="divider"></li>
-        <li><a href="/docs">Docs</a></li>
+        <li><a href="{% url "docs" %}">Docs</a></li>
         <li class="divider"></li>
-        <li><a href="/faq">FAQ</a></li>
+        <li><a href="{% url "faq" %}">FAQ</a></li>
         <li class="divider"></li>
-        <li><a href="/privacy">Privacy</a></li>
+        <li><a href="{% url "privacy" %}">Privacy</a></li>
 	{% endif %}
         <li class="divider"></li>
         <li><a href="mailto:{{settings.HELP_EMAIL_ADDRESS}}">Help!</a></li>
