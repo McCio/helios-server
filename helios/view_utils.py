@@ -41,6 +41,8 @@ def prepare_vars(request, values):
   vars_with_user['TEMPLATE_BASE'] = helios.TEMPLATE_BASE
   vars_with_user['CURRENT_URL'] = request.path
   vars_with_user['SECURE_URL_HOST'] = settings.SECURE_URL_HOST
+  if 'voter' not in vars_with_user:
+    vars_with_user['voter'] = None
 
   return vars_with_user
 

@@ -35,6 +35,8 @@ def prepare_vars(request, values):
   vars_with_user['TEMPLATE_BASE'] = helios_auth.TEMPLATE_BASE
 
   vars_with_user['settings'] = settings
+  if 'voter' not in vars_with_user:
+    vars_with_user['voter'] = None
 
   return vars_with_user
 
