@@ -343,13 +343,13 @@ def one_election_view(request, election):
                           'test_cookie_url': test_cookie_url})
 
 def test_cookie(request):
-  continue_url = request.GET['continue_url']
+  continue_url = request.GET.get('continue_url', settings.URL_HOST)
   request.session.set_test_cookie()
   next_url = "%s?%s" % (reverse(url_names.COOKIE_TEST_2), urlencode({'continue_url': continue_url}))
   return HttpResponseRedirect(settings.SECURE_URL_HOST + next_url)  
 
 def test_cookie_2(request):
-  continue_url = request.GET['continue_url']
+  continue_url = request.GET.get('continue_url', settings.URL_HOST)
 
   if not request.session.test_cookie_worked():
     return HttpResponseRedirect(settings.SECURE_URL_HOST + ("%s?%s" % (reverse(url_names.COOKIE_NO), urlencode({'continue_url': continue_url}))))
@@ -358,7 +358,7 @@ def test_cookie_2(request):
   return HttpResponseRedirect(continue_url)  
 
 def nocookies(request):
-  retest_url = "%s?%s" % (reverse(url_names.COOKIE_TEST), urlencode({'continue_url' : request.GET['continue_url']}))
+  retest_url = "%s?%s" % (reverse(url_names.COOKIE_TEST), urlencode({'continue_url' : request.GET.get('continue_url', settings.URL_HOST)}))
   return render_template(request, 'nocookies', {'retest_url': retest_url})
 
 ##
@@ -1360,7 +1360,9 @@ def voters_email(request, election):
               'voter_login_id': '<VOTER_LOGIN_ID>',
               'voter_password': '<VOTER_PASSWORD>',
               'voter_type': election.voter_set.all()[0].voter_type,
-              'election': election}
+              'election': election,
+              'alias': '<VOTER_ALIAS>',
+              }
   })
 
   if request.method == "GET":
