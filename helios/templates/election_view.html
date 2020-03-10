@@ -279,14 +279,14 @@ Anyone can vote in this election.
 
 {% if not election.voting_has_started %}
 <p style="font-size: 1.2em;">
-  <a href="{{SECURE_URL_HOST}}/booth/vote.html?election_url={% url "election@home" election.uuid %}">preview booth</a>
+  <a href="{{ settings.BOOTH_STATIC_URL }}vote.html?election_url={% url "election@home" election.uuid %}">preview booth</a>
 </p>
 {% endif %}  
 
 {% if election.voting_has_stopped %}
 <p style="font-size: 1.2em;">
 {% if election.result %}
-verify <a target="_blank" href="/verifier/verify.html?election_url={% url "election@home" election.uuid %}">election tally</a>.
+verify <a target="_blank" href="{{ settings.VERIFIER_STATIC_URL }}verify.html?election_url={% url "election@home" election.uuid %}">election tally</a>.
 {% endif %}
 
 review the <a href="{{vote_url}}">voting booth</a>.

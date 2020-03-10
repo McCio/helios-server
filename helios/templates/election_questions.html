@@ -132,7 +132,7 @@
   }
 
   $(document).ready(function() {
-      $('#questions').setTemplateURL("/static/helios/static_templates/question.html");
+      $('#questions').setTemplateURL("{{ settings.HELIOS_STATIC_URL }}static_templates/question.html");
 
       refresh();
   });

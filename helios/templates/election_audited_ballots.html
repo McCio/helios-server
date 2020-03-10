@@ -14,7 +14,7 @@ These ballots are <em>not cast</em>, and they will not be counted. They are just
 </p>
 
 <p>
-  To verify an audited ballot, copy its entire content and paste it in the <a target="_new" href="/booth/single-ballot-verify.html?election_url={% url "election@home" election.uuid %}">single ballot verifier</a>.
+  To verify an audited ballot, copy its entire content and paste it in the <a target="_new" href="{{ settings.BOOTH_STATIC_URL }}single-ballot-verify.html?election_url={% url "election@home" election.uuid %}">single ballot verifier</a>.
 </p>
 
 {% if audited_ballots %}

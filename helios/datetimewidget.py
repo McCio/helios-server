@@ -56,7 +56,7 @@ class DateTimeWidget(forms.widgets.TextInput):
         id = final_attrs['id']
 
         jsdformat = self.dformat #.replace('%', '%%')
-        cal = calbtn % (settings.MEDIA_URL, id, id, jsdformat, id)
+        cal = calbtn % (settings.HELIOS_STATIC_URL, id, id, jsdformat, id)
         a = '<input%s />%s%s' % (forms.util.flatatt(final_attrs), self.media, cal)
         return mark_safe(a)
 

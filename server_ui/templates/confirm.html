@@ -2,7 +2,7 @@
 {% block title %}Confirm Vote{% endblock %}
 
 {% block content %}
-<script language="javascript">
+<script>
 $(document).ready(function() {
   $('#waiting_div').hide();
 });
@@ -44,7 +44,7 @@ function show_waiting() {
 
 <div id="waiting_div" align="center">
   Verifying and Casting your ballot<br />
-  <img src="/static/helios/loading.gif" />
+  <img src="{{ settings.HELIOS_STATIC_URL }}loading.gif" />
 </div>
 
 {% endblock %}

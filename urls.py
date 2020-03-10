@@ -1,19 +1,24 @@
 # -*- coding: utf-8 -*-
 from django.conf import settings
-from django.urls import path, re_path, include
+from django.urls import path, include
 from django.views.static import serve
+
+
+def __static(base):
+    return base + '<path:path>'
+
 
 urlpatterns = [
     path('auth/', include('helios_auth.urls')),
     path('helios/', include('helios.urls')),
 
     # SHOULD BE REPLACED BY APACHE STATIC PATH
-    re_path(r'booth/(?P<path>.*)$', serve, {'document_root' : settings.ROOT_PATH + '/heliosbooth'}),
-    re_path(r'verifier/(?P<path>.*)$', serve, {'document_root' : settings.ROOT_PATH + '/heliosverifier'}),
+    path(__static(settings.BOOTH_STATIC_URL), serve, {'document_root': settings.BOOTH_STATIC_ROOT}),
+    path(__static(settings.VERIFIER_STATIC_URL), serve, {'document_root': settings.VERIFIER_STATIC_ROOT}),
 
-    re_path(r'static/auth/(?P<path>.*)$', serve, {'document_root' : settings.ROOT_PATH + '/helios_auth/media'}),
-    re_path(r'static/helios/(?P<path>.*)$', serve, {'document_root' : settings.ROOT_PATH + '/helios/media'}),
-    re_path(r'static/(?P<path>.*)$', serve, {'document_root' : settings.ROOT_PATH + '/server_ui/media'}),
+    path(__static(settings.AUTH_STATIC_URL), serve, {'document_root': settings.AUTH_STATIC_ROOT}),
+    path(__static(settings.HELIOS_STATIC_URL), serve, {'document_root': settings.HELIOS_STATIC_ROOT}),
+    path(__static(settings.BASE_STATIC_URL), serve, {'document_root': settings.BASE_STATIC_ROOT}),
 
     path('', include('server_ui.urls')),
 ]
