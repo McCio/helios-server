@@ -579,9 +579,12 @@ class ElectionBlackboxTests(WebTest):
             response = self.client.post(f"/helios/elections/{election_id}/voters/upload", {'voters_file': voters_file})
         self.assertContains(response, "first few rows of this file")
 
+        mails_before = len(mail.outbox)
         # now we confirm the upload
-        response = self.client.post("/helios/elections/%s/voters/upload" % election_id, {'confirm_p': "1"})
-        self.assertRedirects(response, "/helios/elections/%s/voters/list" % election_id)
+        response = self.client.post(f"/helios/elections/{election_id}/voters/upload", {'confirm_p': "1"})
+        self.assertRedirects(response, f"/helios/elections/{election_id}/voters/list")
+        mails_after = len(mail.outbox)
+        self.assertEqual(mails_before + 1, mails_after, "Mail has not been sent after voter file imported.")
 
         # and we want to check that there are now voters
         response = self.client.get("/helios/elections/%s/voters/" % election_id)
