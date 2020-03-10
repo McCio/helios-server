@@ -14,6 +14,7 @@ import uuid
 import bleach
 from django.conf import settings
 from django.db import models, transaction
+from django.db.models import UniqueConstraint, Q
 from django.db.models.fields.files import FieldFile
 
 from helios import datatypes
@@ -822,8 +823,12 @@ class Voter(HeliosModel):
   cast_at = models.DateTimeField(auto_now_add=False, null=True)
 
   class Meta:
-    unique_together = (('election', 'voter_login_id'))
     app_label = 'helios'
+    constraints = [
+      UniqueConstraint(fields=['election', 'user'], condition=Q(voter_login_id=None), name="voter_user_in_election"),
+      UniqueConstraint(fields=['election', 'voter_login_id'], condition=Q(user=None), name="voter_id_in_election"),
+      UniqueConstraint(fields=['election', 'alias'], condition=~Q(alias=None), name="voter_alias_in_election"),
+    ]
 
   def __init__(self, *args, **kwargs):
     super(Voter, self).__init__(*args, **kwargs)
@@ -1157,8 +1162,10 @@ class Trustee(HeliosModel):
                                     null=True)
 
   class Meta:
-    unique_together = (('election', 'email'))
     app_label = 'helios'
+    constraints = [
+      UniqueConstraint(fields=['election', 'email'], name="unique_email_by_election"),
+    ]
 
   def save(self, *args, **kwargs):
     """

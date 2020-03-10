@@ -7,6 +7,7 @@ Ben Adida
 (ben@adida.net)
 """
 from django.db import models
+from django.db.models import UniqueConstraint
 
 from .auth_systems import can_check_constraint, AUTH_SYSTEMS
 from .jsonfield import JSONField
@@ -32,8 +33,10 @@ class User(models.Model):
   admin_p = models.BooleanField(default=False)
 
   class Meta:
-    unique_together = (('user_type', 'user_id'),)
     app_label = 'helios_auth'
+    constraints = [
+      UniqueConstraint(fields=['user_type', 'user_id'], name="unique_id_by_type"),
+    ]
 
   @classmethod
   def _get_type_and_id(cls, user_type, user_id):
