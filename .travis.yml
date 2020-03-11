@@ -43,4 +43,4 @@ install:
 before_script:
   - psql -c 'create database helios;' -U postgres
 
-script: "python3 -Wall manage.py test -v 2"
+script: "LOG_FOLDER=. python3 -Wall manage.py test -v 2"

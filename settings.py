@@ -309,6 +309,8 @@ logging.basicConfig(
     format='%(asctime)s %(levelname)s %(message)s'
 )
 
+LOG_FOLDER = get_from_env('LOG_FOLDER', os.path.join('var', 'log'))
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -316,7 +318,7 @@ LOGGING = {
         'file': {
             'level': logging.getLevelName(LOGGING_LEVEL),
             'class': 'logging.FileHandler',
-            'filename': '/var/log/helios.log' if not TESTING else '/var/log/testing.helios.log',
+            'filename': os.path.join(LOG_FOLDER, 'helios.log' if not TESTING else 'testing.helios.log'),
         },
     },
     'loggers': {
