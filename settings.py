@@ -134,19 +134,19 @@ ROOT_URLCONF = 'urls'
 ROOT_PATH = os.path.dirname(__file__)
 
 # static urls (_STATIC) and paths (_ROOT)
-BASE_STATIC_URL = 'static/'
+BASE_STATIC_URL = '/static/'
 BASE_STATIC_ROOT = os.path.join(ROOT_PATH, 'server_ui', 'media')
 
-BOOTH_STATIC_URL = 'booth/'
+BOOTH_STATIC_URL = '/booth/'
 BOOTH_STATIC_ROOT = os.path.join(ROOT_PATH, 'heliosbooth')
 
-VERIFIER_STATIC_URL = 'verifier/'
+VERIFIER_STATIC_URL = '/verifier/'
 VERIFIER_STATIC_ROOT = os.path.join(ROOT_PATH, 'heliosverifier')
 
-AUTH_STATIC_URL = 'static/auth/'
+AUTH_STATIC_URL = '/static/auth/'
 AUTH_STATIC_ROOT = os.path.join(ROOT_PATH, 'helios_auth', 'media')
 
-HELIOS_STATIC_URL = 'static/helios/'
+HELIOS_STATIC_URL = '/static/helios/'
 HELIOS_STATIC_ROOT = os.path.join(ROOT_PATH, 'helios', 'media')
 
 HELIOS_CRYPTO_STATIC_URL = HELIOS_STATIC_URL + 'helios/'

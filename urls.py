@@ -5,7 +5,7 @@ from django.views.static import serve
 
 
 def __static(base):
-    return base + '<path:path>'
+    return base[1:] + '<path:path>'
 
 
 urlpatterns = [
