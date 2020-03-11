@@ -7,7 +7,7 @@
 {% else %}
 <p>
     <a href="{{settings.SECURE_URL_HOST}}{% url "auth@start" system_name=auth_system %}?return_url={{return_url}}" style="font-size: 1.4em;">
-<img style="height: 35px; border: 0px;" src="/static/auth/login-icons/{{auth_system}}.png" alt="{{auth_system}}" /> {{auth_system}}
+<img style="height: 35px; border: 0px;" src="{{ settings.AUTH_STATIC_URL }}login-icons/{{auth_system}}.png" alt="{{auth_system}}" /> {{auth_system}}
 {% endifequal %}
 </a>
 </p>

@@ -6,6 +6,7 @@ GAE
 Ben Adida
 (ben@adida.net)
 """
+from django.conf import settings
 from django.db import models
 from django.db.models import UniqueConstraint
 
@@ -161,12 +162,11 @@ class User(models.Model):
     public_url = self.public_url
     
     if public_url:
-      name_display = '<a href="%s">%s</a>' % (public_url, self.pretty_name)
+      name_display = f'<a href="{public_url}">{self.pretty_name}</a>'
     else:
       name_display = self.pretty_name
 
-    return """<img class="%s-logo" src="/static/auth/login-icons/%s.png" alt="%s" /> %s""" % (
-      size, self.user_type, self.user_type, name_display)
+    return f"""<img class="{size}-logo" src="{settings.AUTH_STATIC_URL}/login-icons/{self.user_type}.png" alt="{self.user_type}" /> {name_display}"""
 
   @property
   def display_html_small(self):
