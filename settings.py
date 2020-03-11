@@ -309,7 +309,9 @@ logging.basicConfig(
     format='%(asctime)s %(levelname)s %(message)s'
 )
 
-LOG_FOLDER = get_from_env('LOG_FOLDER', os.path.join('var', 'log'))
+LOG_FOLDER = get_from_env('LOG_FOLDER', os.path.join('/', 'var', 'log'))
+LOG_FILENAME = 'helios.log' if not TESTING else 'testing.helios.log'
+LOG_FULLPATH = os.path.join(os.path.abspath(LOG_FOLDER), LOG_FILENAME)
 
 LOGGING = {
     'version': 1,
@@ -318,7 +320,7 @@ LOGGING = {
         'file': {
             'level': logging.getLevelName(LOGGING_LEVEL),
             'class': 'logging.FileHandler',
-            'filename': os.path.join(LOG_FOLDER, 'helios.log' if not TESTING else 'testing.helios.log'),
+            'filename': LOG_FULLPATH,
         },
     },
     'loggers': {
@@ -337,5 +339,5 @@ if ROLLBAR_ACCESS_TOKEN:
   MIDDLEWARE += ['rollbar.contrib.django.middleware.RollbarNotifierMiddleware',]
   ROLLBAR = {
     'access_token': ROLLBAR_ACCESS_TOKEN,
-    'environment': 'development' if DEBUG else 'production',  
+    'environment': 'development' if DEBUG else 'production',
   }
