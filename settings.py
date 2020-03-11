@@ -1,10 +1,8 @@
-
-# a massive hack to see if we're testing, in which case we use different settings
-import sys
-
 import json
 import os
+import sys
 
+# a massive hack to see if we're testing, in which case we use different settings
 TESTING = 'test' in sys.argv or 'check' in sys.argv
 
 # go through environment variables and override them
@@ -86,8 +84,7 @@ SECRET_KEY = get_from_env('SECRET_KEY', 'replaceme')
 
 # If debug is set to false and ALLOWED_HOSTS is not declared, django raises  "CommandError: You must set settings.ALLOWED_HOSTS if DEBUG is False."
 # If in production, you got a bad request (400) error
-#More info: https://docs.djangoproject.com/en/1.7/ref/settings/#allowed-hosts (same for 1.6)
-
+# More info: https://docs.djangoproject.com/en/2.2/ref/settings/#allowed-hosts
 ALLOWED_HOSTS = get_from_env('ALLOWED_HOSTS', 'localhost').split(",")
 
 # Secure Stuff

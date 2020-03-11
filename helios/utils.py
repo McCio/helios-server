@@ -6,8 +6,6 @@ Ben Adida - ben@adida.net
 """
 
 import datetime
-import re
-import string
 import urllib.parse
 
 from django.conf import settings
@@ -49,7 +47,7 @@ def urlencodeall(str):
     if not str:
         return ""
 
-    return string.join(['%' + s.encode('hex') for s in str], '')
+    return "".join(['%' + s.encode('hex') for s in str])
 
 def urldecode(str):
     if not str:
@@ -72,43 +70,6 @@ def xml_escape(s):
 def xml_unescape(s):
     new_s = s.replace('&lt;','<').replace('&gt;','>')
     return new_s
-    
-##
-## XSS attack prevention
-##
-
-def xss_strip_all_tags(s):
-    """
-    Strips out all HTML.
-    """
-    return s
-    def fixup(m):
-        text = m.group(0)
-        if text[:1] == "<":
-            return "" # ignore tags
-        if text[:2] == "&#":
-            try:
-                if text[:3] == "&#x":
-                    return chr(int(text[3:-1], 16))
-                else:
-                    return chr(int(text[2:-1]))
-            except ValueError:
-                pass
-        elif text[:1] == "&":
-            import html.entities
-            entity = html.entities.entitydefs.get(text[1:-1])
-            if entity:
-                if entity[:2] == "&#":
-                    try:
-                        return chr(int(entity[2:-1]))
-                    except ValueError:
-                        pass
-                else:
-                    return str(entity, "iso-8859-1")
-        return text # leave as is
-        
-    return re.sub("(?s)<[^>]*>|&#?\w+;", fixup, s)
-    
 
 def random_string(length=20, alphabet=None):
     ALPHABET = alphabet or 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
@@ -152,10 +113,12 @@ def send_email(sender, recpt_lst, subject, body):
 ## raw SQL and locking
 ##
 
-def one_val_raw_sql(raw_sql, values=[]):
+def one_val_raw_sql(raw_sql, values=None):
   """
   for a simple aggregate
   """
+  if values is None:
+      values = []
   from django.db import connection
   cursor = connection.cursor()
 
