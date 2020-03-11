@@ -7,7 +7,7 @@ TESTING = 'test' in sys.argv or 'check' in sys.argv
 
 # go through environment variables and override them
 def get_from_env(var, default):
-    if not TESTING and var in os.environ:
+    if var in os.environ:
         return os.environ[var]
     else:
         return default
