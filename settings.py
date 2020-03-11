@@ -291,14 +291,6 @@ EMAIL_USE_TLS = (get_from_env('EMAIL_USE_TLS', '0') == '1')
 if get_from_env('EMAIL_USE_AWS', '0') == '1':
     EMAIL_BACKEND = 'django_ses.SESBackend'
 
-# set up logging
-import logging
-
-logging.basicConfig(
-    level=logging.DEBUG if TESTING or DEBUG else logging.INFO,
-    format='%(asctime)s %(levelname)s %(message)s'
-)
-
 # set up celery
 CELERY_BROKER_URL = 'amqp://localhost'
 CELERY_TASK_ALWAYS_EAGER = True
@@ -306,6 +298,35 @@ CELERY_TASK_SERIALIZER = 'pickle'
 CELERY_EVENT_SERIALIZER = 'pickle'
 CELERY_RESULT_SERIALIZER = 'pickle'
 #database_url = DATABASES['default']
+
+# set up logging
+import logging
+
+LOGGING_LEVEL = logging.DEBUG if TESTING or DEBUG else logging.INFO
+
+logging.basicConfig(
+    level=LOGGING_LEVEL,
+    format='%(asctime)s %(levelname)s %(message)s'
+)
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'file': {
+            'level': logging.getLevelName(LOGGING_LEVEL),
+            'class': 'logging.FileHandler',
+            'filename': '/var/log/helios.log' if not TESTING else '/var/log/testing.helios.log',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['file'],
+            'level': logging.getLevelName(LOGGING_LEVEL),
+            'propagate': True,
+        },
+    },
+}
 
 # Rollbar Error Logging
 ROLLBAR_ACCESS_TOKEN = get_from_env('ROLLBAR_ACCESS_TOKEN', None)
