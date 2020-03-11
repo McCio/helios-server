@@ -759,7 +759,6 @@ class VoterFile(models.Model):
     self.save()
 
     election = self.election
-    last_alias_num = election.last_alias_num
 
     num_voters = 0
     new_voters = []
@@ -780,11 +779,14 @@ class VoterFile(models.Model):
         # logging.info(f"Added voter {new_voter}")
 
     if election.use_voter_aliases:
-      voter_alias_integers = list(range(last_alias_num+1, last_alias_num+1+num_voters))
-      random.shuffle(voter_alias_integers)
-      for i, voter in zip(voter_alias_integers, new_voters):
-        voter.alias = f'V{i:d}'
-        voter.save()
+      with transaction.atomic():
+        Election.objects.select_for_update().filter(id=election.id).all()
+        last_alias_num = election.last_alias_num
+        voter_alias_integers = list(range(last_alias_num+1, last_alias_num+1+num_voters))
+        random.shuffle(voter_alias_integers)
+        for i, voter in zip(voter_alias_integers, new_voters):
+          voter.alias = f'V{i:d}'
+          voter.save()
 
     self.num_voters = num_voters
     self.processing_finished_at = datetime.datetime.utcnow()
@@ -845,9 +847,9 @@ class Voter(HeliosModel):
 
     # do we need to generate an alias?
     if election.use_voter_aliases:
-      utils.lock_row(Election, election.id)
+      Election.objects.select_for_update().filter(id=election.id).all()
       alias_num = election.last_alias_num + 1
-      voter.alias = "V%s" % alias_num
+      voter.alias = f"V{alias_num:d}"
 
     voter.save()
     return voter
