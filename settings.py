@@ -292,8 +292,9 @@ if get_from_env('EMAIL_USE_AWS', '0') == '1':
     EMAIL_BACKEND = 'django_ses.SESBackend'
 
 # set up celery
-CELERY_BROKER_URL = 'amqp://localhost'
-CELERY_TASK_ALWAYS_EAGER = True
+CELERY_BROKER_URL = get_from_env('CELERY_BROKER_URL', 'amqp://localhost')
+if TESTING:
+    CELERY_TASK_ALWAYS_EAGER = True
 CELERY_TASK_SERIALIZER = 'pickle'
 CELERY_EVENT_SERIALIZER = 'pickle'
 CELERY_RESULT_SERIALIZER = 'pickle'
