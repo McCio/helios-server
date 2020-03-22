@@ -35,7 +35,7 @@ SHOW_USER_INFO = (get_from_env('SHOW_USER_INFO', '1') == '1')
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'helios',
         'CONN_MAX_AGE': 600,
     },
@@ -46,7 +46,7 @@ if get_from_env('DATABASE_URL', None):
     import dj_database_url
 
     DATABASES['default'] = dj_database_url.config(conn_max_age=600, ssl_require=True)
-    DATABASES['default']['ENGINE'] = 'django.db.backends.postgresql_psycopg2'
+    DATABASES['default']['ENGINE'] = 'django.db.backends.postgresql'
 
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
@@ -108,10 +108,10 @@ if get_from_env('HSTS', '0') == '1':
 
 SECURE_BROWSER_XSS_FILTER = True
 SECURE_CONTENT_TYPE_NOSNIFF = True
+X_FRAME_OPTIONS = 'SAMEORIGIN'  # X_FRAME_OPTIONS is not set to DENY since some logout options use SAMEORIGIN iframe
 
 SILENCED_SYSTEM_CHECKS = [
     'urls.W002',
-    'security.W019',  # X_FRAME_OPTIONS is not set to DENY since some logout options use SAMEORIGIN iframe
 ]
 
 MIDDLEWARE = [
