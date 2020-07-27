@@ -160,11 +160,17 @@ class User(models.Model):
     
   def _display_html(self, size):
     public_url = self.public_url
-    
+
+    if public_url is None and 'email' in self.info:
+      public_url = 'mailto:' + self.info['email']
+
     if public_url:
       name_display = f'<a href="{public_url}">{self.pretty_name}</a>'
     else:
       name_display = self.pretty_name
+
+    if size is None:
+      return name_display
 
     return f"""<img class="{size}-logo" src="{settings.AUTH_STATIC_URL}/login-icons/{self.user_type}.png" alt="{self.user_type}" /> {name_display}"""
 
@@ -175,3 +181,7 @@ class User(models.Model):
   @property
   def display_html_big(self):
     return self._display_html('big')
+
+  @property
+  def display_html(self):
+    return self._display_html(None)
